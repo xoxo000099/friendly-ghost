@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haunted Doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka:wght@500;700&family=Andika:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--night:#1f1233;--night2:#2e1b4a;--pumpkin:#f28a1d;--moon:#fff1cc;--slime:#9bd45b;--blood:#e0443e;--text:#f7efff;--wood:#5b3a26;--wood2:#7a4e33}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#120a1f;color:var(--text);font-family:'Fredoka','Arial Rounded MT Bold',sans-serif;overflow:hidden}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;flex:none;background:radial-gradient(ellipse at 50% 115%,#3b2160 0%,var(--night) 62%);overflow:hidden}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--slime);outline-offset:3px}
+.creep{font-family:'Creepster','Fredoka',cursive;letter-spacing:3px;font-weight:400}
+
+/* top bar */
+#top{position:absolute;left:0;right:0;top:0;height:96px;display:flex;align-items:center;gap:14px;padding:0 24px}
+#title{font-size:46px;color:var(--pumpkin);margin-right:auto;text-shadow:0 4px 0 #6b2c00}
+.team{min-width:150px;height:72px;border-radius:18px;background:var(--night2);border:3px solid #4a2f70;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .2s}
+.team .n{font-size:20px;color:#cbb8e6}
+.team .s{font-size:34px;font-weight:700;color:var(--moon);line-height:1}
+.team.turn{border-color:var(--pumpkin);background:#4a2a18;transform:scale(1.08)}
+.tbtn{background:#3a2458;color:var(--text);border:2px solid #5a3d85;border-radius:14px;height:50px;padding:0 14px;font-size:20px}
+
+/* doors */
+#board{position:absolute;left:0;right:0;top:110px;bottom:20px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:22px 26px;padding:0 60px;align-content:center}
+.door{position:relative;height:255px;border:none;background:none;padding:0;perspective:700px}
+.door .frame{position:absolute;inset:0;border-radius:90px 90px 8px 8px;background:#0b0614;box-shadow:inset 0 0 30px #000;display:flex;align-items:center;justify-content:center;font-size:90px}
+.door .leaf{position:absolute;inset:0;border-radius:90px 90px 8px 8px;background:repeating-linear-gradient(90deg,var(--wood) 0 22px,var(--wood2) 22px 26px);border:5px solid #2f1b10;transform-origin:left center;transition:transform .7s cubic-bezier(.3,.7,.3,1);display:flex;align-items:center;justify-content:center}
+.door .num{font-size:64px;font-weight:700;color:var(--moon);text-shadow:0 3px 0 #000}
+.door .knob{position:absolute;right:16px;top:55%;width:16px;height:16px;border-radius:50%;background:#e8b84a}
+.door.open .leaf{transform:rotateY(-105deg)}
+.door.open{cursor:default}
+.door:not(.open):hover .leaf{transform:rotateY(-12deg)}
+
+/* overlays */
+.ov{position:absolute;inset:0;background:rgba(8,3,16,.86);display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+.ov.on{display:flex}
+#bigpic{font-size:230px;line-height:1}
+#bigword{font-family:'Andika','Fredoka',sans-serif;font-size:96px;color:var(--moon);min-height:110px}
+#prompt{font-size:44px;color:var(--pumpkin)}
+.row{display:flex;gap:24px}
+.ok,.no{border:none;border-radius:999px;padding:18px 44px;font-size:40px;font-weight:700}
+.ok{background:var(--slime);color:#14310a;box-shadow:0 7px 0 #4f7d25}
+.no{background:#cbb8e6;color:#24123a;box-shadow:0 7px 0 #7c66a0}
+.boo{font-size:300px;line-height:1;animation:shake .5s ease 2}
+.bootext{font-size:170px;color:var(--blood);line-height:1}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-18px,8px) rotate(-6deg)}40%{transform:translate(16px,-10px) rotate(5deg)}60%{transform:translate(-10px,6px)}80%{transform:translate(8px,-4px)}}
+.msg{font-size:46px;color:var(--moon)}
+
+/* setup / end */
+#setup h1,#end h1{margin:0;font-size:130px;color:var(--pumpkin);text-shadow:0 6px 0 #6b2c00}
+.pick{background:var(--night2);border:3px solid #5a3d85;color:var(--text);border-radius:22px;width:150px;height:110px;font-size:28px}
+.pick b{display:block;font-size:56px;line-height:1}
+.how{font-size:26px;color:#e5d6ff;line-height:1.6;max-width:900px}
+.rank{font-size:50px;color:var(--moon)}
+@media (prefers-reduced-motion: reduce){.boo{animation:none}.door .leaf{transition:none}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+  <div id="top">
+    <div id="title" class="creep">Haunted Doors</div>
+    <div id="teams" style="display:flex;gap:14px"></div>
+    <button class="tbtn" id="music" aria-label="Music on or off">🔊 Music</button>
+    <button class="tbtn" id="slidesBtn" aria-label="Back to slides">📖</button>
+    <button class="tbtn" id="full" aria-label="Full screen">⛶</button>
+  </div>
+  <div id="board"></div>
+
+  <!-- picture door -->
+  <div class="ov" id="ovWord">
+    <div id="prompt">What is it?</div>
+    <div id="bigpic"></div>
+    <div id="bigword"></div>
+    <div class="row" id="judge">
+      <button class="ok" id="okBtn">✓ Yes! +2</button>
+      <button class="no" id="noBtn">✗ Not yet</button>
+    </div>
+    <button class="ok" id="goBtn" style="display:none">Next team ➜</button>
+  </div>
+
+  <!-- ghost door -->
+  <div class="ov" id="ovBoo">
+    <div class="boo">👻</div>
+    <div class="bootext creep">BOO!</div>
+    <div class="msg" id="booMsg"></div>
+    <button class="ok" id="booGo">Next team ➜</button>
+  </div>
+
+  <!-- candy door -->
+  <div class="ov" id="ovCandy">
+    <div style="font-size:220px;line-height:1">🍭</div>
+    <div class="msg" id="candyMsg"></div>
+    <button class="ok" id="candyGo">Next team ➜</button>
+  </div>
+
+  <!-- setup -->
+  <div class="ov on" id="setup" style="background:rgba(8,3,16,.94)">
+    <h1 class="creep">Haunted Doors</h1>
+    <div class="how">輪流選一扇門 ➜ 看到圖說出 <b>“It's a ___!”</b><br>👻 鬼門：扣 2 分　🍭 糖果門：送 3 分</div>
+    <div class="row">
+      <button class="pick" data-n="2"><b>2</b>teams</button>
+      <button class="pick" data-n="3"><b>3</b>teams</button>
+      <button class="pick" data-n="4"><b>4</b>teams</button>
+    </div>
+  </div>
+
+  <!-- end -->
+  <div class="ov" id="end" style="background:rgba(8,3,16,.94)">
+    <h1 class="creep">The End!</h1>
+    <div class="rank" id="rank"></div>
+    <button class="ok" id="again">Play again</button>
+  </div>
+</div></div>
+
+<script src="audio.js"></script>
+<script>
+/* ===== 想換單字就改這裡：e = 圖案 (emoji)，w = 單字 =====
+   門的總數 = 單字數 + 鬼 + 糖果（建議湊成 12 扇） */
+const VOCAB = [
+  { e:'👻', w:'ghost' }, { e:'🎃', w:'pumpkin' }, { e:'🧙', w:'witch' }, { e:'🦇', w:'bat' },
+  { e:'🐈‍⬛', w:'cat' },  { e:'🕷️', w:'spider' },  { e:'👹', w:'monster' }, { e:'🍬', w:'candy' }
+];
+const GHOSTS = 2, CANDIES = 2;
+const WORD_POINTS = 2, GHOST_MINUS = 2, CANDY_PLUS = 3;
+const TEAM_NAMES = ['Pumpkins','Bats','Ghosts','Witches'];
+const TEAM_ICONS = ['🎃','🦇','👻','🧙'];
+
+const $ = id => document.getElementById(id);
+const article = w => (/^[aeiou]/.test(w) ? 'an ' : 'a ') + w;
+const sentence = w => w === 'candy' ? "It's candy!" : "It's " + article(w) + "!";
+let teams = [], turn = 0, left = 0;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function renderTeams(){
+  $('teams').innerHTML = teams.map((t,i)=>`<div class="team ${i===turn?'turn':''}"><span class="n">${t.icon} ${t.name}</span><span class="s">${t.score}</span></div>`).join('');
+}
+
+function newGame(n){
+  teams = Array.from({length:n},(_,i)=>({name:TEAM_NAMES[i],icon:TEAM_ICONS[i],score:0}));
+  turn = 0;
+  const items = shuffle([
+    ...VOCAB.map(v=>({type:'word',...v})),
+    ...Array(GHOSTS).fill({type:'ghost'}),
+    ...Array(CANDIES).fill({type:'candy'})
+  ]);
+  left = items.length;
+  const cols = items.length <= 12 ? 6 : 7;
+  $('board').style.gridTemplateColumns = `repeat(${cols},minmax(0,1fr))`;
+  $('board').innerHTML = '';
+  items.forEach((it,i)=>{
+    const d = document.createElement('button');
+    d.className = 'door'; d.setAttribute('aria-label','Door '+(i+1));
+    d.innerHTML = `<div class="frame">${it.type==='word'?it.e:it.type==='ghost'?'👻':'🍭'}</div>
+                   <div class="leaf"><span class="num">${i+1}</span><span class="knob"></span></div>`;
+    d.onclick = ()=>openDoor(d,it,i+1);
+    $('board').appendChild(d);
+  });
+  renderTeams();
+  ['setup','end'].forEach(x=>$(x).classList.remove('on'));
+}
+
+function openDoor(d,it,num){
+  if(d.classList.contains('open')) return;
+  d.classList.add('open'); left--;
+  SpookyAudio.creak();
+  setTimeout(()=>{
+    if(it.type==='word'){
+      $('bigpic').textContent = it.e; $('bigword').textContent = '';
+      $('prompt').textContent = 'What is it?';
+      $('judge').style.display='flex'; $('goBtn').style.display='none';
+      $('ovWord')._it = it; $('ovWord').classList.add('on');
+    } else if(it.type==='ghost'){
+      SpookyAudio.boo();
+      const t = teams[turn]; t.score = Math.max(0, t.score-GHOST_MINUS);
+      $('booMsg').textContent = `${t.icon} ${t.name} −${GHOST_MINUS}`;
+      renderTeams(); $('ovBoo').classList.add('on');
+    } else {
+      SpookyAudio.chime([72,76,79,84,88]);
+      const t = teams[turn]; t.score += CANDY_PLUS;
+      $('candyMsg').textContent = `Yummy! ${t.icon} ${t.name} +${CANDY_PLUS}`;
+      renderTeams(); $('ovCandy').classList.add('on');
+      setTimeout(()=>SpookyAudio.speak('Yummy candy!'),400);
+    }
+  },650);
+}
+
+function judge(correct){
+  const it = $('ovWord')._it;
+  $('bigword').textContent = it.w;
+  $('prompt').textContent = sentence(it.w);
+  if(correct){ teams[turn].score += WORD_POINTS; SpookyAudio.chime(); }
+  else SpookyAudio.thud();
+  renderTeams();
+  setTimeout(()=>SpookyAudio.speak(sentence(it.w)),250);
+  $('judge').style.display='none'; $('goBtn').style.display='inline-block';
+}
+
+function nextTurn(){
+  document.querySelectorAll('.ov').forEach(o=>o.classList.remove('on'));
+  if(left<=0){ finish(); return; }
+  turn = (turn+1)%teams.length; renderTeams();
+}
+
+function finish(){
+  const sorted = [...teams].sort((a,b)=>b.score-a.score);
+  const top = sorted[0].score;
+  const winners = sorted.filter(t=>t.score===top);
+  $('rank').innerHTML = winners.map(t=>`🏆 ${t.icon} ${t.name}`).join('<br>') +
+    `<div style="font-size:30px;color:#cbb8e6;margin-top:16px">${sorted.map(t=>t.icon+' '+t.score).join('　')}</div>`;
+  $('end').classList.add('on');
+  SpookyAudio.chime([72,76,79,84,79,84,88]);
+  setTimeout(()=>SpookyAudio.speak('Happy Halloween!'),700);
+}
+
+$('okBtn').onclick = ()=>judge(true);
+$('noBtn').onclick = ()=>judge(false);
+['goBtn','booGo','candyGo'].forEach(id=>$(id).onclick = nextTurn);
+document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>newGame(+b.dataset.n));
+$('again').onclick = ()=>{ $('end').classList.remove('on'); $('setup').classList.add('on'); };
+const mBtn = $('music');
+mBtn.onclick = ()=>{ const on = SpookyAudio.toggle(); mBtn.textContent = on ? '🔇 Stop' : '🔊 Music'; };
+$('slidesBtn').onclick = ()=>{ location.href = 'index.html'; };
+$('full').onclick = ()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); };
+
+function fit(){ const k=Math.min(innerWidth/1280,innerHeight/720); $('stage').style.transform='scale('+k+')'; }
+addEventListener('resize',fit); fit();
+</script>
+</body>
+</html>

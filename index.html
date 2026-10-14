@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Halloween!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Fredoka:wght@500;700&family=Andika:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#1f1233; --night2:#2e1b4a; --pumpkin:#f28a1d; --moon:#fff1cc; --slime:#9bd45b; --ink:#1d1d1d; --text:#f7efff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#120a1f;color:var(--text);font-family:'Fredoka','Arial Rounded MT Bold',sans-serif;overflow:hidden}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;flex:none;background:radial-gradient(ellipse at 50% 120%,#3b2160 0%,var(--night) 60%);overflow:hidden;transform-origin:center center}
+.slide{position:absolute;inset:0;padding:56px 72px 96px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+.slide.on{display:flex;animation:fadein .45s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+h1,h2{margin:0;font-weight:700}
+h2{font-size:64px;color:var(--moon)}
+.creep{font-family:'Creepster','Fredoka',cursive;font-weight:400;letter-spacing:3px}
+.big-title{font-size:150px;color:var(--pumpkin);line-height:1;text-shadow:0 6px 0 #6b2c00}
+.sub{font-size:40px;color:var(--moon)}
+.hint{font-size:22px;color:#cbb8e6}
+.moon{width:340px;height:340px;border-radius:50%;background:var(--moon);display:flex;align-items:center;justify-content:center;box-shadow:0 0 80px 10px rgba(255,241,204,.35);border:none;cursor:pointer;font-size:210px;line-height:1;padding:0}
+.moon .pic{transition:filter .5s ease, transform .5s ease;display:block}
+.moon.hidden .pic{filter:brightness(0)}
+.moon:not(.hidden) .pic{transform:scale(1.06)}
+.word{font-family:'Andika','Fredoka',sans-serif;font-size:96px;color:var(--moon);min-height:110px;line-height:1.1}
+.sentence{font-family:'Andika','Fredoka',sans-serif;font-size:44px;color:#e5d6ff;min-height:56px}
+.qwhat{font-size:54px;color:var(--pumpkin)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;width:100%}
+.card{background:var(--night2);border-radius:26px;padding:26px 14px;display:flex;flex-direction:column;align-items:center;gap:12px;border:3px solid #4a2f70;color:var(--text);font:inherit;cursor:pointer}
+.card .e{font-size:110px;line-height:1}
+.card .t{font-family:'Andika','Fredoka',sans-serif;font-size:32px;color:var(--moon)}
+.grid8{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;width:100%}
+.grid8 .card{padding:16px 10px}
+.grid8 .card .e{font-size:90px}
+.grid8 .card .t{font-size:34px}
+.dialog{display:flex;flex-direction:column;gap:22px;width:820px}
+.line{display:flex;align-items:center;gap:22px;background:var(--night2);border:3px solid #4a2f70;border-radius:24px;padding:16px 26px;cursor:pointer;color:var(--text);font:inherit;text-align:left}
+.line .who{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;flex:none}
+.line .say{font-family:'Andika','Fredoka',sans-serif;font-size:46px}
+.line.a .who{background:var(--pumpkin)} .line.b .who{background:var(--slime)}
+.disguise{display:flex;align-items:center;gap:40px;font-size:170px;line-height:1}
+.disguise .arrow{font-size:80px;color:var(--pumpkin)}
+.frame{font-family:'Andika','Fredoka',sans-serif;font-size:56px;color:var(--moon)}
+.frame u{text-decoration:none;border-bottom:5px dashed var(--pumpkin);padding:0 18px}
+.play{background:var(--pumpkin);color:#2a1100;font:700 54px 'Fredoka',sans-serif;border:none;border-radius:999px;padding:22px 64px;cursor:pointer;text-decoration:none;box-shadow:0 8px 0 #8a4400}
+.play:active{transform:translateY(4px);box-shadow:0 4px 0 #8a4400}
+.bat{position:absolute;font-size:60px;animation:fly 9s ease-in-out infinite;pointer-events:none}
+@keyframes fly{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(40px,-30px) rotate(8deg)}}
+#bar{position:absolute;left:0;right:0;bottom:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(10,4,20,.55)}
+#bar button{background:#3a2458;color:var(--text);border:2px solid #5a3d85;border-radius:14px;height:50px;min-width:56px;padding:0 16px;font:600 22px 'Fredoka',sans-serif;cursor:pointer}
+#bar button:focus-visible,.card:focus-visible,.moon:focus-visible,.line:focus-visible,.play:focus-visible{outline:4px solid var(--slime);outline-offset:3px}
+#count{font-size:22px;color:#cbb8e6}
+.grp{display:flex;gap:10px}
+@media (prefers-reduced-motion: reduce){.bat{animation:none}.slide.on{animation:none}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+  <!-- 1 Title -->
+  <section class="slide" data-title>
+    <span class="bat" style="left:120px;top:80px" aria-hidden="true">🦇</span>
+    <span class="bat" style="right:150px;top:120px;animation-delay:-3s" aria-hidden="true">🦇</span>
+    <span class="bat" style="right:300px;top:40px;font-size:40px;animation-delay:-6s" aria-hidden="true">🦇</span>
+    <h1 class="creep big-title">Happy Halloween!</h1>
+    <div class="sub">October 31</div>
+    <div class="hint">按右下 🔊 開音樂・方向鍵或點擊換頁</div>
+  </section>
+
+  <!-- 2 What do we do -->
+  <section class="slide">
+    <h2>What do we do on Halloween?</h2>
+    <div class="cards">
+      <button class="card" data-say="Wear a costume."><span class="e">🧛</span><span class="t">wear a costume</span></button>
+      <button class="card" data-say="Trick or treat!"><span class="e">🚪</span><span class="t">“Trick or treat!”</span></button>
+      <button class="card" data-say="Get candy."><span class="e">🍬</span><span class="t">get candy</span></button>
+      <button class="card" data-say="Make a jack-o'-lantern."><span class="e">🎃</span><span class="t">make a jack-o'-lantern</span></button>
+    </div>
+  </section>
+
+  <!-- vocab slides are generated from the list in the script -->
+  <div id="vocabSlot" hidden></div>
+
+  <!-- Review -->
+  <section class="slide">
+    <h2>Let's say it again!</h2>
+    <div class="grid8" id="review"></div>
+  </section>
+
+  <!-- Knock knock -->
+  <section class="slide">
+    <h2>Knock, knock!</h2>
+    <div class="dialog">
+      <button class="line a" data-say="Knock, knock!"><span class="who">🧒</span><span class="say">Knock, knock!</span></button>
+      <button class="line b" data-say="Who's there?"><span class="who">🧙</span><span class="say">Who's there?</span></button>
+      <button class="line a" data-say="Trick or treat!"><span class="who">🧒</span><span class="say">Trick or treat!</span></button>
+      <button class="line b" data-say="Here's some candy. Happy Halloween!"><span class="who">🧙</span><span class="say">Here's some candy! 🍬</span></button>
+    </div>
+  </section>
+
+  <!-- Disguise -->
+  <section class="slide">
+    <h2>Disguise the ghost!</h2>
+    <div class="disguise" aria-hidden="true"><span>👻</span><span class="arrow">➜</span><span>🎃</span></div>
+    <button class="line a" data-say="I'm not a ghost! I'm a pumpkin!" style="background:none;border:none;justify-content:center">
+      <span class="frame">I'm not a ghost! I'm <u>a pumpkin</u>!</span>
+    </button>
+  </section>
+
+  <!-- Play -->
+  <section class="slide">
+    <span class="bat" style="left:180px;top:120px" aria-hidden="true">🦇</span>
+    <span class="bat" style="right:200px;top:90px;animation-delay:-4s" aria-hidden="true">🦇</span>
+    <h1 class="creep big-title" style="font-size:120px">Let's play!</h1>
+    <a class="play" href="game.html">🚪 Haunted Doors</a>
+  </section>
+
+  <div id="bar">
+    <div class="grp">
+      <button id="prev" aria-label="Previous slide">◀</button>
+      <button id="next" aria-label="Next slide">▶</button>
+    </div>
+    <div id="count"></div>
+    <div class="grp">
+      <button id="music" aria-label="Music on or off">🔊 Music</button>
+      <button id="full" aria-label="Full screen">⛶</button>
+    </div>
+  </div>
+</div></div>
+
+<script src="audio.js"></script>
+<script>
+/* ===== 想換單字就改這裡：e = 圖案 (emoji)，w = 單字 ===== */
+const VOCAB = [
+  { e:'👻', w:'ghost' },
+  { e:'🎃', w:'pumpkin' },
+  { e:'🧙', w:'witch' },
+  { e:'🦇', w:'bat' },
+  { e:'🐈‍⬛', w:'cat' },
+  { e:'🕷️', w:'spider' },
+  { e:'👹', w:'monster' },
+  { e:'🍬', w:'candy' }
+];
+const article = w => (/^[aeiou]/.test(w) ? 'an ' : 'a ') + w;
+const sentence = v => v.w === 'candy' ? "It's candy." : "It's " + article(v.w) + ".";
+
+// build vocab slides: picture starts as a shadow, first click/next reveals it
+const slot = document.getElementById('vocabSlot');
+VOCAB.forEach(v => {
+  const s = document.createElement('section');
+  s.className = 'slide vocab';
+  s.innerHTML = `
+    <div class="qwhat">What is it?</div>
+    <button class="moon hidden" aria-label="Reveal the picture"><span class="pic">${v.e}</span></button>
+    <div class="word"></div>
+    <div class="sentence"></div>`;
+  s._v = v;
+  slot.before(s);
+});
+slot.remove();
+const review = document.getElementById('review');
+VOCAB.forEach(v => {
+  const b = document.createElement('button');
+  b.className = 'card'; b.dataset.say = v.w;
+  b.innerHTML = `<span class="e">${v.e}</span><span class="t">${v.w}</span>`;
+  review.appendChild(b);
+});
+
+function reveal(s) {
+  const m = s.querySelector('.moon');
+  if (!m.classList.contains('hidden')) { SpookyAudio.speak(s._v.w); return false; }
+  m.classList.remove('hidden');
+  s.querySelector('.qwhat').textContent = 'It\u2019s…';
+  s.querySelector('.word').textContent = s._v.w;
+  s.querySelector('.sentence').textContent = sentence(s._v);
+  SpookyAudio.chime([79, 84]);
+  setTimeout(() => SpookyAudio.speak(s._v.w + '. ' + sentence(s._v)), 300);
+  return true;
+}
+
+const slides = [...document.querySelectorAll('.slide')];
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('on', k === cur));
+  document.getElementById('count').textContent = (cur + 1) + ' / ' + slides.length;
+}
+function next() {
+  const s = slides[cur];
+  if (s.classList.contains('vocab') && s.querySelector('.moon.hidden')) { reveal(s); return; }
+  show(cur + 1);
+}
+function prev() { show(cur - 1); }
+
+document.addEventListener('click', e => {
+  const m = e.target.closest('.moon'); if (m) { reveal(m.closest('.slide')); return; }
+  const say = e.target.closest('[data-say]'); if (say) SpookyAudio.speak(say.dataset.say);
+});
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+const mBtn = document.getElementById('music');
+mBtn.onclick = () => { const on = SpookyAudio.toggle(); mBtn.textContent = on ? '🔇 Stop' : '🔊 Music'; };
+document.getElementById('full').onclick = () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.();
+};
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','PageDown',' ','Enter'].includes(e.key) && !e.target.closest('button,a')) { e.preventDefault(); next(); }
+  else if (['ArrowRight','PageDown'].includes(e.key)) { e.preventDefault(); next(); }
+  else if (['ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+});
+
+// scale the 1280x720 stage to fit any screen / projector
+function fit() {
+  const k = Math.min(innerWidth / 1280, innerHeight / 720);
+  document.getElementById('stage').style.transform = 'scale(' + k + ')';
+}
+addEventListener('resize', fit); fit();
+show(0);
+</script>
+</body>
+</html>
